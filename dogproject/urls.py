@@ -1,19 +1,24 @@
 from django.contrib import admin
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from dogapi.views import DogViewSet, BreedViewSet
+from django.urls import path
+from dogapi.controllers import (
+    DogList,
+    DogDetail,
+    BreedList,
+    BreedDetail,
+)
 
 
-# Router automatically creates the REST API URL patterns
-# for both Dog and Breed endpoints.
-router = DefaultRouter()
-router.register(r'dogs', DogViewSet)
-router.register(r'breeds', BreedViewSet)
-
-
+# URL patterns for the class-based API implementation.
+# List endpoints handle GET and POST.
+# Detail endpoints handle GET, PUT, and DELETE.
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Adds the Dog and Breed API endpoints under /api/
-    path('api/', include(router.urls)),
+    # Dog API endpoints
+    path('api/dogs/', DogList.as_view(), name='dog-list'),
+    path('api/dogs/<int:pk>/', DogDetail.as_view(), name='dog-detail'),
+
+    # Breed API endpoints
+    path('api/breeds/', BreedList.as_view(), name='breed-list'),
+    path('api/breeds/<int:pk>/', BreedDetail.as_view(), name='breed-detail'),
 ]
