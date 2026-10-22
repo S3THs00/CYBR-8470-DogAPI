@@ -1,0 +1,47 @@
+services:
+
+  # PostgreSQL database service
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: dogapi
+      POSTGRES_USER: dogapiuser
+      POSTGRES_PASSWORD: dogapipassword
+
+    # Keeps the PostgreSQL database data even if the
+    # database container is stopped or recreated.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Django application service
+  app:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+
+    # Maps our local project folder into /app inside
+    # the container. Changes to our code are immediately
+    # available inside the container.
+    volumes:
+      - .:/app
+
+    # Maps localhost port 8000 to Django's port 8000.
+    ports:
+      - "8000:8000"
+
+    # Database connection information that Django
+    # will use in settings.py.
+    environment:
+      DB_NAME: dogapi
+      DB_USER: dogapiuser
+      DB_PASSWORD: dogapipassword
+      DB_HOST: db
+      DB_PORT: 5432
+
+    # Start the database service before the app service.
+    depends_on:
+      - db
+
+
+# Named volume used to persist PostgreSQL data.
+volumes:
+  postgres_data:
